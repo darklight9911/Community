@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}DSAT School{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-purple': '#9967b9',
+            'brand-yellow': '#fdcc4c', 
+            'brand-ink': '#262632',
+            'brand-ink-60': '#515368'
+          },
+          fontFamily: {
+            'montserrat': ['Montserrat', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+</head>
+<body>
+  <!-- Flash Messages Container -->
+  <div id="flash-container" 
+       x-data="flashMessages()" 
+       class="fixed top-20 right-4 z-50 space-y-2"
+       x-cloak>
+    <template x-for="message in messages" :key="message.id">
+      <div x-show="message.visible"
+           x-transition:enter="transition ease-out duration-300"
+           x-transition:enter-start="opacity-0 transform translate-x-full"
+           x-transition:enter-end="opacity-100 transform translate-x-0"
+           x-transition:leave="transition ease-in duration-200"
+           x-transition:leave-start="opacity-100 transform translate-x-0"
+           x-transition:leave-end="opacity-0 transform translate-x-full"
+           class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4"
+           :class="{
+             'border-l-4 border-l-green-500': message.type === 'success',
+             'border-l-4 border-l-red-500': message.type === 'error',
+             'border-l-4 border-l-blue-500': message.type === 'info',
+             'border-l-4 border-l-yellow-500': message.type === 'warning'
+           }">
+        <div class="flex items-start">
+          <div class="flex-1">
+            <p class="text-sm font-medium text-gray-900" x-text="message.title"></p>
+            <p class="text-sm text-gray-600 mt-1" x-text="message.text"></p>
+          </div>
+          <button @click="removeMessage(message.id)" 
+                  class="ml-3 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <nav class="sticky top-0 z-40 bg-white border-b border-gray-200 backdrop-blur-sm bg-white/95">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="/" class="flex items-center space-x-2 text-lg font-bold hover:scale-105 transition-transform">
+          <span class="text-brand-purple font-extrabold tracking-wide">DSAT</span>
+          <span class="text-brand-ink font-semibold tracking-wide">SCHOOL</span>
+        </a>
+        <div class="flex items-center space-x-4" x-data="authNav()">
+          <template x-if="!isLoggedIn">
+            <div class="flex items-center space-x-3">
+              <a href="/login" class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
+                Log in
+              </a>
+              <a href="/signup" class="bg-brand-purple text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors shadow-md hover:shadow-lg">
+                Sign up
+              </a>
+            </div>
+          </template>
+          <template x-if="isLoggedIn">
+            <button @click="logout()" 
+                    class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
+              Logout
+            </button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 flex items-center justify-center px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="bg-white border-t border-gray-200 py-4">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <span class="text-sm text-brand-ink-60">© {{ 2025 }} DSAT School</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    // Alpine.js Components
+    function flashMessages() {
+      return {
+        messages: [],
+        addMessage(type, title, text) {
+          const id = Date.now() + Math.random();
+          const message = { id, type, title, text, visible: true };
+          this.messages.push(message);
+          setTimeout(() => this.removeMessage(id), 5000);
+        },
+        removeMessage(id) {
+          const index = this.messages.findIndex(m => m.id === id);
+          if (index > -1) {
+            this.messages[index].visible = false;
+            setTimeout(() => {
+              this.messages.splice(index, 1);
+            }, 200);
+          }
+        }
+      }
+    }
+
+    function authNav() {
+      return {
+        isLoggedIn: false,
+        init() {
+          this.checkAuth();
+        },
+        checkAuth() {
+          this.isLoggedIn = !!getAccessToken();
+        },
+        logout() {
+          logout();
+          this.isLoggedIn = false;
+          window.location.href = '/';
+        }
+      }
+    }
+
+    // Global flash message function
+    window.showFlash = function(type, title, text) {
+      const container = document.querySelector('#flash-container');
+      if (container && container._x_dataStack) {
+        container._x_dataStack[0].addMessage(type, title, text);
+      }
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

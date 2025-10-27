@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}DSAT School — Learn smarter{% endblock %}
+{% block content %}
+<div class="text-center max-w-4xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-5xl md:text-6xl font-extrabold text-brand-ink mb-4 leading-tight">
+      <span class="text-brand-purple">DSAT</span> 
+      <span class="text-brand-ink">SCHOOL</span>
+    </h1>
+    <p class="text-xl text-brand-ink-60 mb-8 max-w-2xl mx-auto leading-relaxed">
+      Post, ask doubts, comment, and vote — all in one compact, fast interface designed for modern learners.
+    </p>
+  </div>
+  
+  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+    <a href="/signup" 
+       class="bg-brand-purple text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+      Get started
+    </a>
+    <a href="/login" 
+       class="bg-white text-brand-ink px-8 py-4 rounded-xl font-bold text-lg border-2 border-gray-200 hover:border-brand-purple hover:text-brand-purple transition-all duration-200 shadow-md hover:shadow-lg">
+      I already have an account
+    </a>
+  </div>
+  
+  <div class="inline-flex items-center justify-center bg-brand-yellow text-brand-ink px-6 py-3 rounded-xl font-bold text-lg shadow-md">
+    🎓 SAT Buddy
+  </div>
+</div>
+{% endblock %}

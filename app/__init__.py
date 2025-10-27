@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from .extensions import db, migrate, jwt, init_redis
 from .api import api_bp
+from .web import web_bp
 from .models import *  # noqa: F401,F403
 
 
@@ -23,6 +24,7 @@ def create_app(config_class: str | None = None) -> Flask:
 
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(web_bp)
 
     # Basic healthcheck
     @app.get("/health")

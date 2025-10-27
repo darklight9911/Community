@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}Sign up — DSAT School{% endblock %}
+{% block content %}
+<div class="w-full max-w-md mx-auto" x-data="signupForm()">
+  <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-extrabold text-brand-ink mb-2">Create account</h2>
+      <p class="text-brand-ink-60">Join DSAT School and start learning</p>
+    </div>
+
+    <!-- Form -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Username Field -->
+      <div>
+        <label for="username" class="block text-sm font-semibold text-brand-ink mb-2">
+          Username
+        </label>
+        <input 
+          id="username"
+          x-model="form.username"
+          type="text" 
+          autocomplete="username"
+          required
+          placeholder="Choose a username"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all duration-200 text-brand-ink placeholder-gray-400"
+          :class="{ 'border-red-300 focus:ring-red-500': errors.username }"
+        >
+        <p x-show="errors.username" x-text="errors.username" class="text-red-500 text-sm mt-1"></p>
+      </div>
+
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-semibold text-brand-ink mb-2">
+          Email
+        </label>
+        <input 
+          id="email"
+          x-model="form.email"
+          type="email" 
+          autocomplete="email"
+          required
+          placeholder="you@example.com"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all duration-200 text-brand-ink placeholder-gray-400"
+          :class="{ 'border-red-300 focus:ring-red-500': errors.email }"
+        >
+        <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-sm mt-1"></p>
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-sm font-semibold text-brand-ink mb-2">
+          Password
+        </label>
+        <div class="relative">
+          <input 
+            id="password"
+            x-model="form.password"
+            :type="showPassword ? 'text' : 'password'"
+            autocomplete="new-password"
+            required
+            placeholder="Create a strong password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all duration-200 text-brand-ink placeholder-gray-400 pr-12"
+            :class="{ 'border-red-300 focus:ring-red-500': errors.password }"
+          >
+          <button 
+            type="button"
+            @click="showPassword = !showPassword"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-brand-ink">
+            <svg x-show="!showPassword" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <svg x-show="showPassword" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m3.878-3.878L21 21" />
+            </svg>
+          </button>
+        </div>
+        <p x-show="errors.password" x-text="errors.password" class="text-red-500 text-sm mt-1"></p>
+        <div class="mt-2">
+          <div class="text-xs text-brand-ink-60">
+            Password strength: 
+            <span x-text="passwordStrength.label" :class="passwordStrength.class"></span>
+          </div>
+          <div class="mt-1 h-1 bg-gray-200 rounded">
+            <div class="h-1 rounded transition-all duration-300" 
+                 :class="passwordStrength.barClass" 
+                 :style="`width: ${passwordStrength.width}%`"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit"
+        :disabled="loading"
+        class="w-full bg-brand-purple text-white py-3 px-4 rounded-lg font-bold text-sm tracking-wide hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        :class="{ 'opacity-50 cursor-not-allowed': loading }">
+        <span x-show="!loading">Create Account</span>
+        <span x-show="loading" class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Creating account...
+        </span>
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-brand-ink-60">
+        Already have an account? 
+        <a href="/login" class="text-brand-purple font-semibold hover:text-purple-700 transition-colors">
+          Sign in
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  function signupForm() {
+    return {
+      form: {
+        username: '',
+        email: '',
+        password: ''
+      },
+      errors: {},
+      loading: false,
+      showPassword: false,
+
+      get passwordStrength() {
+        const password = this.form.password;
+        if (!password) return { label: 'None', class: 'text-gray-400', barClass: 'bg-gray-300', width: 0 };
+        
+        let score = 0;
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        const levels = [
+          { label: 'Very Weak', class: 'text-red-500', barClass: 'bg-red-500', width: 20 },
+          { label: 'Weak', class: 'text-orange-500', barClass: 'bg-orange-500', width: 40 },
+          { label: 'Fair', class: 'text-yellow-500', barClass: 'bg-yellow-500', width: 60 },
+          { label: 'Good', class: 'text-blue-500', barClass: 'bg-blue-500', width: 80 },
+          { label: 'Strong', class: 'text-green-500', barClass: 'bg-green-500', width: 100 }
+        ];
+
+        return levels[Math.min(score, 4)];
+      },
+
+      validateForm() {
+        this.errors = {};
+        
+        if (this.form.username.length < 3) {
+          this.errors.username = 'Username must be at least 3 characters';
+        }
+        
+        if (!this.form.email.includes('@')) {
+          this.errors.email = 'Please enter a valid email address';
+        }
+        
+        if (this.form.password.length < 6) {
+          this.errors.password = 'Password must be at least 6 characters';
+        }
+
+        return Object.keys(this.errors).length === 0;
+      },
+
+      async handleSubmit() {
+        if (!this.validateForm()) return;
+
+        this.loading = true;
+
+        try {
+          await register(this.form.username, this.form.email, this.form.password);
+          showFlash('success', 'Account Created!', 'Welcome to DSAT School. Logging you in...');
+          
+          // Auto-login after successful registration
+          await login(this.form.username, this.form.password);
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1500);
+        } catch (error) {
+          const message = error.message || 'Registration failed. Please try again.';
+          showFlash('error', 'Registration Failed', message);
+          
+          // Set field-specific errors if available
+          if (message.includes('username')) {
+            this.errors.username = 'Username already taken';
+          }
+          if (message.includes('email')) {
+            this.errors.email = 'Email already registered';
+          }
+        } finally {
+          this.loading = false;
+        }
+      }
+    }
+  }
+</script>
+{% endblock %}

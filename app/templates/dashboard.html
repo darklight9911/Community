@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — DSAT School{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="dashboard()">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-extrabold text-brand-ink mb-2">Dashboard</h2>
+    <p class="text-brand-ink-60">Latest posts from the community</p>
+  </div>
+
+  <!-- Loading State -->
+  <div x-show="loading" class="flex justify-center items-center py-12">
+    <svg class="animate-spin h-8 w-8 text-brand-purple" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>
+
+  <!-- Posts Grid -->
+  <div x-show="!loading && posts.length > 0" 
+       class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <template x-for="post in posts" :key="post.id">
+      <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+        <div class="flex items-start justify-between mb-3">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                :class="post.post_type === 'post' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'">
+            <span x-text="post.post_type === 'post' ? 'Post' : 'Doubt'"></span>
+          </span>
+          <span class="text-xs text-brand-ink-60" x-text="`ID: ${post.id}`"></span>
+        </div>
+        
+        <h3 class="text-lg font-bold text-brand-ink mb-2 line-clamp-2" x-text="post.title"></h3>
+        <p class="text-brand-ink-60 text-sm mb-4 line-clamp-3" x-text="post.content"></p>
+        
+        <div class="flex items-center justify-between text-xs text-brand-ink-60">
+          <span x-text="formatDate(post.created_at)"></span>
+          <span x-text="`User: ${post.user_id}`"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Empty State -->
+  <div x-show="!loading && posts.length === 0" 
+       class="text-center py-12">
+    <div class="text-6xl mb-4">📝</div>
+    <h3 class="text-xl font-semibold text-brand-ink mb-2">No posts yet</h3>
+    <p class="text-brand-ink-60 mb-6">Be the first to share something with the community!</p>
+    <button class="bg-brand-purple text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+      Create Post
+    </button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  function dashboard() {
+    return {
+      posts: [],
+      loading: true,
+
+      async init() {
+        // Check if user is logged in
+        if (!getAccessToken()) {
+          window.location.href = '/login';
+          return;
+        }
+
+        await this.loadPosts();
+      },
+
+      async loadPosts() {
+        try {
+          const response = await apiFetch('/api/posts/');
+          const data = await response.json();
+          
+          if (Array.isArray(data)) {
+            this.posts = data;
+          } else {
+            showFlash('error', 'Error', 'Unexpected response format');
+          }
+        } catch (error) {
+          const message = error.message || 'Failed to load posts';
+          showFlash('error', 'Error', message);
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        try {
+          return new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+        } catch {
+          return 'Unknown';
+        }
+      }
+    }
+  }
+</script>
+{% endblock %}
