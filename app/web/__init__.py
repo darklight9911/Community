@@ -17,3 +17,7 @@ def signup_page():
 @web_bp.get("/dashboard")
 def dashboard_page():
     return render_template("dashboard.html")
+
+@web_bp.get("/profile")
+def profile_page():
+    return render_template("profile.html")

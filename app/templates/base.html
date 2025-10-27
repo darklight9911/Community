@@ -84,10 +84,19 @@
             </div>
           </template>
           <template x-if="isLoggedIn">
-            <button @click="logout()" 
-                    class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
-              Logout
-            </button>
+            <div class="flex items-center space-x-3">
+              <a href="/dashboard" class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
+                Dashboard
+              </a>
+              <a href="/profile" class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
+                <i class="fas fa-user mr-1"></i>
+                Profile
+              </a>
+              <button @click="logout()" 
+                      class="text-brand-ink hover:text-brand-purple font-semibold px-3 py-2 rounded-md transition-colors">
+                Logout
+              </button>
+            </div>
           </template>
         </div>
       </div>

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from ..extensions import db
-from ..models.user import User
+from ..models.user import User, UserRole
 
 bp = Blueprint("auth", __name__)
 
@@ -20,10 +20,17 @@ def register():
 
     user = User(username=username, email=email)
     user.set_password(password)
+    
+    # Auto-assign admin role for admin@gmail.com
+    if email.lower() == "admin@gmail.com":
+        user.role = UserRole.ADMIN
+    else:
+        user.role = UserRole.USER
+    
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({"message": "User registered successfully", "role": user.role.value}), 201
 
 @bp.post("/login")
 def login():
@@ -40,7 +47,11 @@ def login():
 
     access = create_access_token(identity=str(user.id))
     refresh = create_refresh_token(identity=str(user.id))
-    return jsonify({"access_token": access, "refresh_token": refresh}), 200
+    return jsonify({
+        "access_token": access, 
+        "refresh_token": refresh,
+        "user": user.to_dict()
+    }), 200
 
 @bp.post("/refresh")
 @jwt_required(refresh=True)
